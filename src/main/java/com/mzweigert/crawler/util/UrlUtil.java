@@ -1,54 +1,57 @@
 package com.mzweigert.crawler.util;
 
-import com.mzweigert.crawler.model.PageLinkType;
-import com.mzweigert.crawler.model.PageNode;
-import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class UrlUtil {
 
-    public static String extractRootUrl(URL url) {
-        if(url == null){
-            return "";
-        }
-        return url.getProtocol() +
-                (url.getPort() > 0 ? ":" + url.getPort() : "") +
-                "://" +
-                url.getHost();
-    }
+	private UrlUtil(){}
 
-    public static String extract(String link) {
-        if(link == null){
-            return "";
-        }
-        URL url = null;
-        try {
-            url = new URL(link);
-            return extractRootUrl(url) +
-                    (url.getPath().length() == 1 ? "" : url.getPath());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
+	public static String extractRootUrl(URL url) {
+		if (url == null) {
+			return "";
+		}
+		return url.getProtocol() +
+				(url.getPort() > 0 ? ":" + url.getPort() : "") +
+				"://" +
+				url.getHost();
+	}
 
+	public static String normalizeLink(String rootUrl, String link) {
+		if (!link.startsWith("http")) {
+			link = rootUrl + link;
+		}
+		if (link.endsWith("/")) {
+			link = link.substring(0, link.length() - 1);
+		}
+		return link;
+	}
 
-    public static Optional<PageNode> findDownloadOrErrorLink(String url, Connection connect) throws IOException {
-        Connection.Response response;
-        try {
-            response = connect.execute();
-        } catch (HttpStatusException e) {
-            return Optional.of(new PageNode(url, PageLinkType.INVALID_LINK));
-        }
+	public static boolean isFileResource(String link) {
+		String fileExtensionFromUrl = getFileExtensionFromUrl(link);
+		return ExtensionToMimeTypeMap.hasExtension(fileExtensionFromUrl) &&
+				!fileExtensionFromUrl.equals("html");
+	}
 
-        if (!response.contentType().startsWith("text")) {
-            return Optional.of(new PageNode(url, PageLinkType.INTERNAL_RESOURCES));
-        }
-        return Optional.empty();
-    }
+	private static String getFileExtensionFromUrl(String url) {
+		if (url != null && url.length() > 0) {
+			int query = url.lastIndexOf('?');
+			if (query > 0) {
+				url = url.substring(0, query);
+			}
+			int filenamePos = url.lastIndexOf('/');
+			String filename =
+					0 <= filenamePos ? url.substring(filenamePos + 1) : url;
+			// if the filename contains special characters, we don't
+			// consider it valid for our matching purposes:
+			if (filename.length() > 0 &&
+					Pattern.matches("[a-zA-Z_0-9.\\-()%]+", filename)) {
+				int dotPos = filename.lastIndexOf('.');
+				if (0 <= dotPos) {
+					return filename.substring(dotPos + 1);
+				}
+			}
+		}
+		return "";
+	}
 }

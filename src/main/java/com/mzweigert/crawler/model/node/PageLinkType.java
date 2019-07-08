@@ -1,4 +1,4 @@
-package com.mzweigert.crawler.model;
+package com.mzweigert.crawler.model.node;
 
 import java.util.Arrays;
 
@@ -7,8 +7,9 @@ public enum PageLinkType {
     INTERNAL_ROOT_DOMAIN,
     INTERNAL_SUB_DOMAIN,
     INTERNAL_RESOURCES,
-    INVALID_LINK,
-    EXTERNAL_DOMAIN;
+    EXTERNAL_RESOURCES,
+    EXTERNAL_DOMAIN,
+    INVALID_LINK;
 
     public boolean isOneOf(PageLinkType... types) {
         return Arrays.stream(types)

@@ -2,10 +2,10 @@ package com.mzweigert.crawler.task;
 
 import com.mzweigert.crawler.model.PageLinkType;
 import com.mzweigert.crawler.model.PageNode;
+import com.mzweigert.crawler.model.PageNodeMapper;
+import com.mzweigert.crawler.util.UrlUtil;
 import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.net.URL;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.RecursiveTask;
-import java.util.stream.Collectors;
 
 public class MultithreadingRecursiveCrawler extends RecursiveTask<Set<PageNode>> {
 
@@ -34,25 +33,19 @@ public class MultithreadingRecursiveCrawler extends RecursiveTask<Set<PageNode>>
 		Connection connect = Jsoup.connect(url).ignoreContentType(true);
 		this.allVisited = Collections.synchronizedSet(new HashSet<>());
 
-		Optional<PageNode> possibleFileOrError = findDownloadOrErrorLink(url, connect);
+		Optional<PageNode> possibleFileOrError = UrlUtil.findDownloadOrErrorLink(url, connect);
 		if (possibleFileOrError.isPresent()) {
 			allVisited.add(possibleFileOrError.get());
 		} else {
 			URL asUrl = connect.response().url();
-			this.rootUrl = extractRootUrl(asUrl);
-			PageNode root = new PageNode(asUrl.toString(), PageLinkType.INTERNAL_MAIN_DOMAIN);
+			this.rootUrl = UrlUtil.extractRootUrl(asUrl);
+			PageNode root = new PageNode(asUrl.toString(), PageLinkType.INTERNAL_ROOT_DOMAIN);
 			ArrayList<PageNode> toVisit = new ArrayList<>();
 			toVisit.add(root);
 			this.toVisit = extractLinks(toVisit, rootUrl);
 		}
 	}
 
-	private String extractRootUrl(URL url) {
-		return url.getProtocol() +
-				(url.getPort() > 0 ? ":" + url.getPort() : "") +
-				"://" +
-				url.getHost();
-	}
 
 	private MultithreadingRecursiveCrawler(String rootUrl, Collection<PageNode> toVisit, Set<PageNode> allVisited) {
 		this.rootUrl = rootUrl;
@@ -61,7 +54,7 @@ public class MultithreadingRecursiveCrawler extends RecursiveTask<Set<PageNode>>
 	}
 
 	private Set<PageNode> extractLinks(Collection<PageNode> toVisit, String rootUrl) {
-		Set<PageNode> notVisited = new HashSet<>();
+		Set<String> notVisited = new HashSet<>();
 
 		for (PageNode node : toVisit) {
 			try {
@@ -69,55 +62,18 @@ public class MultithreadingRecursiveCrawler extends RecursiveTask<Set<PageNode>>
 					continue;
 				}
 				Connection connect = Jsoup.connect(node.getDomainUrl()).ignoreContentType(true);
-				Optional<PageNode> possibleFileOrError = findDownloadOrErrorLink(node.getDomainUrl(), connect);
-				if (possibleFileOrError.isPresent()) {
-					continue;
-				}
 				allVisited.add(node);
-				Set<PageNode> nodes = extractFromDocument(rootUrl, connect.get());
-				notVisited.addAll(nodes);
+				if(node.isInternalDomain()){
+					Set<String> nodes = LinksFinder.getInstance(connect.get()).find(notVisited);
+					notVisited.addAll(nodes);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		return notVisited.stream()
-				.filter(node -> !allVisited.contains(node))
-				.collect(Collectors.toSet());
+		return PageNodeMapper.map(rootUrl, allVisited, notVisited);
 	}
 
-	private Set<PageNode> extractFromDocument(String mainDomainUrl, Document document) {
-		return document.select("a[href]")
-				.stream()
-				.map(a -> a.attr("href"))
-				.filter(link -> link.lastIndexOf("#") < 0)
-				.filter(link -> link.lastIndexOf("?") < 0)
-				.filter(link -> link.length() > 1)
-				.map(link -> {
-					if (link.startsWith("/")) {
-						link = mainDomainUrl + link;
-					} else if (link.charAt(link.length() - 1) == '/') {
-						link = link.substring(0, link.length() - 1);
-					}
-					return new PageNode(link, PageLinkType.INTERNAL_SUB_DOMAIN);
-				})
-				.filter(node -> !allVisited.contains(node))
-				.filter(pageNode -> pageNode.getDomainUrl().startsWith(mainDomainUrl))
-				.collect(Collectors.toSet());
-	}
-
-	private Optional<PageNode> findDownloadOrErrorLink(String url, Connection connect) throws IOException {
-		Connection.Response response;
-		try {
-			response = connect.execute();
-		} catch (HttpStatusException e) {
-			return Optional.of(new PageNode(url, PageLinkType.INTERNAL_ERROR_PAGE));
-		}
-
-		if (!response.contentType().startsWith("text")) {
-			return Optional.of(new PageNode(url, PageLinkType.INTERNAL_RESOURCES));
-		}
-		return Optional.empty();
-	}
 
 	@Override
 	protected Set<PageNode> compute() {

@@ -44,4 +44,10 @@ public class PageNode {
                 '}';
     }
 
+    public boolean isInternalDomain() {
+        return type.isOneOf(
+                PageLinkType.INTERNAL_ROOT_DOMAIN,
+                PageLinkType.INTERNAL_SUB_DOMAIN
+        );
+    }
 }

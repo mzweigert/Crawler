@@ -19,6 +19,7 @@ public class RecursiveCrawlerTest {
     public void testInvokedManyTime() throws IOException {
         //GIVEN
         String url = "http://wiprodigital.com";
+        String subUrl = "http://wiprodigital.com/what-we-do";
 
         //WHEN
         long startTime = System.currentTimeMillis();
@@ -30,7 +31,7 @@ public class RecursiveCrawlerTest {
 
         //THEN
         for(int i=0 ; i<5; i++){
-            Set<PageNode> invokedAgain = forkJoinPool.invoke(new MultithreadingRecursiveCrawler(url));
+            Set<PageNode> invokedAgain = forkJoinPool.invoke(new MultithreadingRecursiveCrawler(subUrl));
             assertThat(invokedFirst).hasSize(invokedAgain.size());
             assertThat(invokedFirst).containsAll(invokedAgain);
         }

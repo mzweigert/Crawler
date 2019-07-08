@@ -1,9 +1,11 @@
 package com.mzweigert.crawler.task;
 
 import com.mzweigert.crawler.model.PageNode;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
@@ -16,8 +18,7 @@ public class RecursiveCrawlerTest {
     @Test
     public void testInvokedManyTime() throws IOException {
         //GIVEN
-
-        String url = "https://wiprodigital.com";
+        String url = "http://wiprodigital.com";
 
         //WHEN
         long startTime = System.currentTimeMillis();
@@ -28,7 +29,7 @@ public class RecursiveCrawlerTest {
         System.out.println("Crawling took " + (endTime - startTime) + " milliseconds");
 
         //THEN
-        for(int i=0 ; i<3; i++){
+        for(int i=0 ; i<5; i++){
             Set<PageNode> invokedAgain = forkJoinPool.invoke(new MultithreadingRecursiveCrawler(url));
             assertThat(invokedFirst).hasSize(invokedAgain.size());
             assertThat(invokedFirst).containsAll(invokedAgain);

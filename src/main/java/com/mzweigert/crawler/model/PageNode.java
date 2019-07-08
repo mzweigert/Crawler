@@ -1,7 +1,6 @@
 package com.mzweigert.crawler.model;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.Objects;
 
 public class PageNode {
 
@@ -9,12 +8,10 @@ public class PageNode {
 
     private PageLinkType type;
 
-    private Collection<PageNode> subLinks;
 
     public PageNode(String domainUrl, PageLinkType type) {
         this.domainUrl = domainUrl;
         this.type = type;
-        this.subLinks = new HashSet<>();
     }
 
     public String getDomainUrl() {
@@ -25,7 +22,26 @@ public class PageNode {
         return type;
     }
 
-    public Collection<PageNode> getSubLinks() {
-        return subLinks;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PageNode pageNode = (PageNode) o;
+        return domainUrl.equals(pageNode.domainUrl) &&
+                type == pageNode.type;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(domainUrl, type);
+    }
+
+    @Override
+    public String toString() {
+        return "PageNode{" +
+                "domainUrl='" + domainUrl + '\'' +
+                ", type=" + type +
+                '}';
+    }
+
 }

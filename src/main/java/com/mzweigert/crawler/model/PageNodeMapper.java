@@ -17,7 +17,7 @@ public class PageNodeMapper {
                 .collect(Collectors.toSet());
     }
 
-    private static PageNode mapToNode(String rootUrl, String link) {
+    public static PageNode mapToNode(String rootUrl, String link) {
         if (link.startsWith("/")) {
             link = rootUrl + link;
         } else if (link.charAt(link.length() - 1) == '/') {

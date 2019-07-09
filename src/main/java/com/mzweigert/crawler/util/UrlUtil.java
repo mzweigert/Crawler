@@ -1,5 +1,8 @@
 package com.mzweigert.crawler.util;
 
+import org.jsoup.Jsoup;
+
+import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
@@ -19,7 +22,10 @@ public class UrlUtil {
     }
 
     public static String normalizeLink(String rootUrl, String link) {
-        if (!link.startsWith("http") && link.charAt(0) == '/') {
+        if (!link.startsWith("http")) {
+            if (link.charAt(0) != '/' && rootUrl.charAt(rootUrl.length() - 1) != '/') {
+                link = '/' + link;
+            }
             link = rootUrl + link;
         }
         if (link.endsWith("/")) {
@@ -54,5 +60,21 @@ public class UrlUtil {
             }
         }
         return "";
+    }
+
+    public static URL asURL(String link) {
+        if (!link.startsWith("http")) {
+            link = "http://" + link;
+        }
+
+        try {
+            return Jsoup.connect(link)
+                    .ignoreContentType(true)
+                    .execute()
+                    .url();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

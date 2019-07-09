@@ -1,6 +1,6 @@
 package com.mzweigert.crawler.service;
 
-import com.mzweigert.crawler.model.node.PageNode;
+import com.mzweigert.crawler.model.node.PageLink;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -44,11 +44,11 @@ public class CrawlerServiceImpl implements CrawlerService {
         }
     }
 
-    public Collection<PageNode> crawl(String startUrl) {
+    public Collection<PageLink> crawl(String startUrl) {
         return forkJoinPool.invoke(new CrawlerTask(startUrl, maxDepth));
     }
 
-    public Collection<PageNode> crawl(String startUrl, int maxDepth) {
+    public Collection<PageLink> crawl(String startUrl, int maxDepth) {
         return forkJoinPool.invoke(new CrawlerTask(startUrl, maxDepth));
     }
 

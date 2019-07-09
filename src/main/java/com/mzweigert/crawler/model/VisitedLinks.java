@@ -1,6 +1,6 @@
 package com.mzweigert.crawler.model;
 
-import com.mzweigert.crawler.model.node.PageNode;
+import com.mzweigert.crawler.model.node.PageLink;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VisitedLinks {
 
     private String rootUrl;
-    private Set<PageNode> visitedNodes;
+    private Set<PageLink> visitedNodes;
     private Set<String> visitedLinks;
 
     public VisitedLinks(String rootUrl) {
@@ -17,12 +17,12 @@ public class VisitedLinks {
         this.visitedLinks = ConcurrentHashMap.newKeySet();
     }
 
-    public void add(PageNode node) {
-        this.visitedLinks.add(node.getDomainUrl());
+    public void add(PageLink node) {
+        this.visitedLinks.add(node.getUrl());
         this.visitedNodes.add(node);
     }
 
-    public Set<PageNode> nodes() {
+    public Set<PageLink> nodes() {
         return visitedNodes;
     }
 

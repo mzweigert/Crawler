@@ -39,7 +39,7 @@ public class MultithreadingRecursiveCrawler extends RecursiveTask<Set<PageNode>>
 		} else {
 			URL asUrl = connect.response().url();
 			this.rootUrl = UrlUtil.extractRootUrl(asUrl);
-			PageNode root = new PageNode(asUrl.toString(), PageLinkType.INTERNAL_ROOT_DOMAIN);
+			PageNode root = PageNodeMapper.mapToNode(this.rootUrl, asUrl.toString());
 			ArrayList<PageNode> toVisit = new ArrayList<>();
 			toVisit.add(root);
 			this.toVisit = extractLinks(toVisit, rootUrl);

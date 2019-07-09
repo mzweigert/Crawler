@@ -1,4 +1,4 @@
-package com.mzweigert.crawler.task;
+package com.mzweigert.crawler.util;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

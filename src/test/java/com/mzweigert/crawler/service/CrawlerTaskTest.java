@@ -1,7 +1,7 @@
 package com.mzweigert.crawler.service;
 
+import com.mzweigert.crawler.model.node.PageLink;
 import com.mzweigert.crawler.model.node.PageLinkType;
-import com.mzweigert.crawler.model.node.PageNode;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -25,17 +25,17 @@ public class CrawlerTaskTest {
         String url = "https://www.wiprodigital.com";
 
         //WHEN
-        Collection<PageNode> result = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
+        Collection<PageLink> result = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
 
         assertThat(result).isNotEmpty();
-        Map<PageLinkType, List<PageNode>> groupedByType = result.stream()
-                .collect(Collectors.groupingBy(PageNode::getType));
+        Map<PageLinkType, List<PageLink>> groupedByType = result.stream()
+                .collect(Collectors.groupingBy(PageLink::getType));
 
         EnumSet.of(PageLinkType.INTERNAL_ROOT_DOMAIN, PageLinkType.INTERNAL_SUB_DOMAIN,
                 PageLinkType.EXTERNAL_RESOURCES, PageLinkType.EXTERNAL_DOMAIN,
                 PageLinkType.INVALID_LINK)
                 .forEach(type -> {
-                    List<PageNode> linksByType = groupedByType.get(type);
+                    List<PageLink> linksByType = groupedByType.get(type);
                     assertThat(linksByType).isNotEmpty();
                 });
     }
@@ -46,12 +46,12 @@ public class CrawlerTaskTest {
         String url = "https://www.wiprodigital.com";
 
         //WHEN
-        Collection<PageNode> result = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
+        Collection<PageLink> result = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
 
         //THEN
         assertThat(result).isNotEmpty();
         IntStream.range(0, 5).forEach(i -> {
-            Collection<PageNode> again = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
+            Collection<PageLink> again = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
             assertThat(again).isNotEmpty();
             assertThat(result.size()).isEqualTo(again.size());
             assertThat(result).containsAll(again);
@@ -65,8 +65,8 @@ public class CrawlerTaskTest {
         String sub = "https://www.wiprodigital.com/what-we-do/";
 
         //WHEN
-        Collection<PageNode> invokedFromRoot = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
-        Collection<PageNode> invokedFromSubDomain = forkJoinPool.invoke(new CrawlerTask(sub, maxDepth));
+        Collection<PageLink> invokedFromRoot = forkJoinPool.invoke(new CrawlerTask(url, maxDepth));
+        Collection<PageLink> invokedFromSubDomain = forkJoinPool.invoke(new CrawlerTask(sub, maxDepth));
 
         //THEN
         assertThat(invokedFromRoot).isNotEmpty();
@@ -82,8 +82,8 @@ public class CrawlerTaskTest {
         String url_2 = "https://www.best.com.pl";
 
         //WHEN
-        Collection<PageNode> first = forkJoinPool.invoke(new CrawlerTask(url_1, maxDepth));
-        Collection<PageNode> second = forkJoinPool.invoke(new CrawlerTask(url_2, maxDepth));
+        Collection<PageLink> first = forkJoinPool.invoke(new CrawlerTask(url_1, maxDepth));
+        Collection<PageLink> second = forkJoinPool.invoke(new CrawlerTask(url_2, maxDepth));
 
         //THEN
         assertThat(first).isNotEmpty();

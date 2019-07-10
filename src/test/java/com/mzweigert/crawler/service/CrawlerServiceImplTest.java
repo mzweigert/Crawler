@@ -1,6 +1,6 @@
 package com.mzweigert.crawler.service;
 
-import com.mzweigert.crawler.model.node.PageNode;
+import com.mzweigert.crawler.model.node.PageLink;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -17,7 +17,7 @@ public class CrawlerServiceImplTest {
         String url = "www.mateuszzweigert.pl";
 
         //WHEN
-        Collection<PageNode> crawl = service.crawl(url);
+        Collection<PageLink> crawl = service.crawl(url);
 
         //THEN
         assertThat(crawl).isNotEmpty();
@@ -29,7 +29,7 @@ public class CrawlerServiceImplTest {
         String url = "www.wiprodigital.com";
 
         //WHEN
-        Collection<PageNode> result = service.crawl(url, 2);
+        Collection<PageLink> result = service.crawl(url, 2);
 
         //THEN
         assertThat(result).isNotEmpty();
@@ -41,8 +41,8 @@ public class CrawlerServiceImplTest {
         String url = "www.wiprodigital.com";
 
         //WHEN
-        Collection<PageNode> first = service.crawl(url, 1);
-        Collection<PageNode> second = service.crawl(url, 1);
+        Collection<PageLink> first = service.crawl(url, 1);
+        Collection<PageLink> second = service.crawl(url, 1);
 
 
         //THEN
@@ -58,8 +58,8 @@ public class CrawlerServiceImplTest {
         String url = "www.wiprodigital.com";
 
         //WHEN
-        Collection<PageNode> first = service.crawl(url, 2);
-        Collection<PageNode> second = service.crawl(url, 3);
+        Collection<PageLink> first = service.crawl(url, 2);
+        Collection<PageLink> second = service.crawl(url, 3);
 
 
         //THEN

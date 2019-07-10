@@ -2,19 +2,19 @@ package com.mzweigert.crawler.model.node;
 
 import java.util.Objects;
 
-public class PageNode {
+public class PageLink {
 
-    private String domainUrl;
+    private String url;
     private PageLinkType type;
 
 
-    public PageNode(String domainUrl, PageLinkType type) {
-        this.domainUrl = domainUrl;
+    public PageLink(String url, PageLinkType type) {
+        this.url = url;
         this.type = type;
     }
 
-    public String getDomainUrl() {
-        return domainUrl;
+    public String getUrl() {
+        return url;
     }
 
     public PageLinkType getType() {
@@ -24,21 +24,21 @@ public class PageNode {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PageNode)) return false;
-        PageNode node = (PageNode) o;
-        return Objects.equals(domainUrl, node.domainUrl) &&
+        if (!(o instanceof PageLink)) return false;
+        PageLink node = (PageLink) o;
+        return Objects.equals(url, node.url) &&
                 type == node.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(domainUrl, type);
+        return Objects.hash(url, type);
     }
 
     @Override
     public String toString() {
         return "PageNode{" +
-                "domainUrl='" + domainUrl + '\'' +
+                "url='" + url + '\'' +
                 ", type=" + type +
                 '}';
     }
@@ -49,4 +49,5 @@ public class PageNode {
                 PageLinkType.INTERNAL_SUB_DOMAIN
         );
     }
+
 }

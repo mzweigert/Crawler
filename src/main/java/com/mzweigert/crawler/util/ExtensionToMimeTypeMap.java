@@ -638,7 +638,7 @@ class ExtensionToMimeTypeMap {
      */
     static boolean hasExtension(String extension) {
         if (extension != null && extension.length() > 0) {
-            return ExtensionToMimeTypeMap.get().containsKey(extension);
+            return ExtensionToMimeTypeMap.get().containsKey(extension.toLowerCase());
         }
         return false;
     }

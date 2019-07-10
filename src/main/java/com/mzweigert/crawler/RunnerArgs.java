@@ -1,5 +1,6 @@
 package com.mzweigert.crawler;
 
+import com.mzweigert.crawler.service.serializer.SerializationType;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.util.List;
@@ -12,6 +13,8 @@ public class RunnerArgs {
 
     private int maxDepth;
     private String url;
+    private SerializationType serializationType = SerializationType.XML;
+    private boolean grouped;
     private boolean parsedStatus;
 
     int getMaxDepth() {
@@ -22,6 +25,14 @@ public class RunnerArgs {
         return url;
     }
 
+    SerializationType getSerializationType() {
+        return serializationType;
+    }
+
+    public boolean isGrouped() {
+        return grouped;
+    }
+
     boolean isSuccess() {
         return parsedStatus;
     }
@@ -30,21 +41,57 @@ public class RunnerArgs {
         int i = 0;
         while (i < argList.size()) {
             String arg = argList.get(i);
-            if (arg.equals("--url") || arg.equals("-u")) {
-                if (tryInitUrl(argList, i)) {
-                    i++;
-                } else {
-                    return;
-                }
-            } else if (arg.equals("--depth") || arg.equals("-d")) {
-                if (tryInitDepth(argList, i)) {
-                    i++;
-                }
-            } else {
-                System.out.println(arg + " argument not recognized!");
+            switch (arg) {
+                case "--url":
+                case "-u":
+                    if (tryInitUrl(argList, i)) {
+                        i++;
+                    } else {
+                        return;
+                    }
+                    break;
+                case "--depth":
+                case "-d":
+                    if (tryInitDepth(argList, i)) {
+                        i++;
+                    }
+                    break;
+                //todo : uncomment when more serialization types will be available
+                /*case "--serialization":
+                case "-s":
+                    if (tryInitSerializationType(argList, i)) {
+                        i++;
+                    }
+                    break;*/
+                case "-g":
+                case "--grouped":
+                    grouped = true;
+                    break;
+                default:
+                    System.out.println(arg + " argument not recognized!");
+                    break;
             }
             i++;
         }
+    }
+
+    private boolean tryInitSerializationType(List<String> argList, int i) {
+        String type = null;
+        boolean initialized = false;
+        if (argList.size() >= i + 2) {
+            type = argList.get(i + 1);
+        }
+        if (type == null) {
+            System.out.println("No serialization type found! Default serialization: xml");
+        } else {
+            try {
+                serializationType = SerializationType.valueOf(type);
+                initialized = true;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Cannot found " + type + " serialization. Default serialization xml");
+            }
+        }
+        return initialized;
     }
 
     private boolean tryInitDepth(List<String> argList, int i) {
@@ -84,4 +131,5 @@ public class RunnerArgs {
         }
         return parsedStatus;
     }
+
 }

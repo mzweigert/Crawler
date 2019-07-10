@@ -1,22 +1,32 @@
 package com.mzweigert.crawler;
 
 import com.mzweigert.crawler.model.node.PageLink;
-import com.mzweigert.crawler.service.CrawlerService;
-import com.mzweigert.crawler.service.CrawlerServiceImpl;
+import com.mzweigert.crawler.service.crawler.CrawlerService;
+import com.mzweigert.crawler.service.crawler.CrawlerServiceImpl;
+import com.mzweigert.crawler.service.serializer.FileSerializationService;
+import com.mzweigert.crawler.service.serializer.FileSerializationServiceFactory;
+import com.mzweigert.crawler.service.serializer.SerializationType;
 
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Runner {
 
     private final RunnerArgs args;
     private final CrawlerService crawlerService;
+    private final FileSerializationService serializerService;
 
-    Runner(RunnerArgs args, CrawlerService crawlerService) {
+    Runner(RunnerArgs args, CrawlerService crawlerService, FileSerializationService serializerService) {
         this.args = args;
         this.crawlerService = crawlerService;
+        this.serializerService = serializerService;
     }
 
     void run() {
@@ -24,23 +34,71 @@ public class Runner {
             System.out.println("Url argument not found. Try run with [-u http://example_domain.com!]");
             return;
         }
+        serialize();
+    }
 
-        Collection<PageLink> collection;
-        if(args.getMaxDepth() > 0) {
+    private void serialize() {
+        String fileName;
+        try {
+            fileName = new URL(args.getUrl()).getHost();
+            Optional<String> directory = createOrFindDirectory(fileName);
+            if (!directory.isPresent()) {
+                System.out.println("Cannot find directory: " + fileName);
+                return;
+            }
+            if (args.isGrouped()) {
+                serializerService.serializeGrouped(directory.get(), fileName, findPageLinks());
+            } else {
+                File file = new File(directory.get() + fileName + ".xml");
+                if (file.exists()) {
+                    System.out.println("File : " + file.getName() + " exists in directory: " + directory.get());
+                } else {
+                    serializerService.serialize(file, findPageLinks());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Collection<PageLink> findPageLinks() {
+        long start, end;
+        Collection<PageLink> crawl;
+        if (args.getMaxDepth() > 0) {
             System.out.println("Start crawling url: " + args.getUrl() + " with depth = " + args.getMaxDepth());
-            collection = crawlerService.crawl(args.getUrl(), args.getMaxDepth());
+            start = System.currentTimeMillis();
+            crawl = crawlerService.crawl(args.getUrl(), args.getMaxDepth());
+            end = System.currentTimeMillis();
         } else {
             System.out.println("Start crawling url: " + args.getUrl());
-            collection = crawlerService.crawl(args.getUrl());
+            start = System.currentTimeMillis();
+            crawl = crawlerService.crawl(args.getUrl());
+            end = System.currentTimeMillis();
         }
-        System.out.println("Found " + collection.size() + " links.");
+
+        float sec = (end - start) / 1000F;
+        System.out.println("Crawling took " + sec + " seconds");
+        return crawl;
+    }
+
+    private Optional<String> createOrFindDirectory(String fileName) {
+        String path = "./output/" + fileName + "/";
+        boolean success = true;
+        if (!Files.isDirectory(Paths.get(path))) {
+            success = new File(path).mkdirs();
+        }
+        return Optional.ofNullable(success ? path : null);
     }
 
     public static void main(String[] args) {
         List<String> argList = Arrays.stream(args).collect(Collectors.toList());
         RunnerArgs runnerArgs = new RunnerArgs(argList);
+
+        SerializationType type = runnerArgs.getSerializationType();
+        FileSerializationService serializationService = FileSerializationServiceFactory.getInstance(type);
+
         CrawlerService crawlerService = new CrawlerServiceImpl();
-        new Runner(runnerArgs, crawlerService).run();
+        new Runner(runnerArgs, crawlerService, serializationService).run();
     }
 
 }

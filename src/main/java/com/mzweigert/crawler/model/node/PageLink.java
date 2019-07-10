@@ -1,12 +1,14 @@
 package com.mzweigert.crawler.model.node;
 
+import jdk.nashorn.internal.ir.annotations.Immutable;
+
 import java.util.Objects;
 
+@Immutable
 public class PageLink {
 
-    private String url;
-    private PageLinkType type;
-
+    private final String url;
+    private final PageLinkType type;
 
     public PageLink(String url, PageLinkType type) {
         this.url = url;

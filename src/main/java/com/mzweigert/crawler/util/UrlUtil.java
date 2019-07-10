@@ -22,6 +22,9 @@ public class UrlUtil {
     }
 
     public static String normalizeLink(String rootUrl, String link) {
+        if (link.startsWith("mailto")) {
+            return link;
+        }
         if (!link.startsWith("http")) {
             if (link.charAt(0) != '/' && rootUrl.charAt(rootUrl.length() - 1) != '/') {
                 link = '/' + link;

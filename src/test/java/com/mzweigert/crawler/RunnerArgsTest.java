@@ -26,6 +26,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -44,6 +46,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
 
@@ -61,6 +65,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getUrl()).isNull();
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -77,6 +83,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getUrl()).isNull();
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
 
@@ -100,6 +108,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isGreaterThan(0);
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -122,6 +132,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isGreaterThan(0);
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -142,6 +154,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -163,6 +177,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -185,6 +201,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -207,6 +225,8 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
+
     }
 
     @Test
@@ -229,5 +249,29 @@ public class RunnerArgsTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getUrl()).isEqualTo(url);
         assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isFalse();
     }
+
+    @Test
+    public void givenUrlAndGroupedArg_whenInit_thenSuccessInit() {
+        //GIVEN
+        List<String> args = new ArrayList<>();
+        String urlArg = "-u";
+        String url = "http://example.com";
+        String grouped = "-g";
+        args.add(urlArg);
+        args.add(url);
+        args.add(grouped);
+
+        //WHEN
+        RunnerArgs result = new RunnerArgs(args);
+
+        //THEN
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getUrl()).isEqualTo(url);
+        assertThat(result.getMaxDepth()).isZero();
+        assertThat(result.isGrouped()).isTrue();
+
+    }
+
 }

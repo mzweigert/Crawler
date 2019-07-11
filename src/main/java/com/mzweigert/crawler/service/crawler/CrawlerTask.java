@@ -24,16 +24,15 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
     private int depth;
 
     CrawlerTask(String link, int maxDepth) {
-        URL asUrl = UrlUtil.asURL(link);
-        if (asUrl == null) {
+        URL url = UrlUtil.asURL(link);
+        if (url == null) {
             this.visitedLinks = new VisitedLinks(link);
-            this.visitedLinks.add(new PageLink(link, PageLinkType.INVALID_LINK));
             return;
         }
 
-        String rootUrl = UrlUtil.extractRootUrl(asUrl);
+        String rootUrl = UrlUtil.extractRootUrl(url);
         this.visitedLinks = new VisitedLinks(rootUrl);
-        link = UrlUtil.normalizeLink(rootUrl, asUrl.toString());
+        link = UrlUtil.normalizeLink(rootUrl, url.toString());
         PageLink root = PageNodeMapper.map(rootUrl, link);
         ArrayList<PageLink> toVisit = new ArrayList<PageLink>(1) {{
             add(root);

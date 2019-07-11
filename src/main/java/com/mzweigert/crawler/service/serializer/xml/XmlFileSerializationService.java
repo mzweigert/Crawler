@@ -17,8 +17,9 @@ public class XmlFileSerializationService implements FileSerializationService {
 
     @Override
     public void serialize(File file, Collection<PageLink> links) {
-
-        if (file.exists()) {
+        if(links.isEmpty()){
+            System.out.println("Found collections links is empty.");
+        }else if (file.exists()) {
             System.out.println("File : " + file.getName() + " exists in directory: " + file.getPath());
         } else {
             Set<AdaptedPageLink> mapped = links.stream()
@@ -30,6 +31,10 @@ public class XmlFileSerializationService implements FileSerializationService {
 
     @Override
     public void serializeGrouped(String directoryFile, String prefixFileName, Collection<PageLink> links) {
+        if(links.isEmpty()){
+            System.out.println("Found collections links is empty.");
+            return;
+        }
         links.parallelStream()
                 .collect(Collectors.groupingByConcurrent(PageLink::getType, Collectors.toSet()))
                 .entrySet()

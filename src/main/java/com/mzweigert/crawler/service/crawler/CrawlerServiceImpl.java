@@ -1,4 +1,4 @@
-package com.mzweigert.crawler.service;
+package com.mzweigert.crawler.service.crawler;
 
 import com.mzweigert.crawler.model.node.PageLink;
 

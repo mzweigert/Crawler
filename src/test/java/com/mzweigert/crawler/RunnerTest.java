@@ -1,6 +1,7 @@
 package com.mzweigert.crawler;
 
-import com.mzweigert.crawler.service.CrawlerService;
+import com.mzweigert.crawler.service.crawler.CrawlerService;
+import com.mzweigert.crawler.service.serializer.FileSerializationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -16,45 +17,65 @@ import static org.mockito.Mockito.*;
 public class RunnerTest {
 
     @Mock
-    private CrawlerService service;
+    private CrawlerService crawlerService;
+
+    @Mock
+    private FileSerializationService serializerService;
 
     @Test
     public void givenInvalidArgs_whenRun_thenNotRunningCrawl() {
         //GIVEN
         RunnerArgs args = generateArgs("-u", "invalid_url");
-        Runner runner = new Runner(args, service);
+        Runner runner = new Runner(args, crawlerService, serializerService);
 
         //WHEN
         runner.run();
 
         //THEN
-        verifyZeroInteractions(service);
+        verifyZeroInteractions(crawlerService);
+        verifyZeroInteractions(serializerService);
     }
 
     @Test
     public void givenArgsWithUrl_whenRun_thenNotRunningCrawl() {
         //GIVEN
         RunnerArgs args = generateArgs("-u", "http://www.example.com");
-        Runner runner = new Runner(args, service);
+        Runner runner = new Runner(args, crawlerService, serializerService);
 
         //WHEN
         runner.run();
 
         //THEN
-        verify(service).crawl(any());
+        verify(crawlerService).crawl(any());
+        verify(serializerService).serialize(any(), anyList());
     }
 
     @Test
     public void givenArgsWithUrlAndDepth_whenRun_thenNotRunningCrawl() {
         //GIVEN
         RunnerArgs args = generateArgs("-u", "http://www.example.com", "-d", "15");
-        Runner runner = new Runner(args, service);
+        Runner runner = new Runner(args, crawlerService, serializerService);
 
         //WHEN
         runner.run();
 
         //THEN
-        verify(service).crawl(any(), eq(15));
+        verify(crawlerService).crawl(any(), eq(15));
+        verify(serializerService).serialize(any(), anyList());
+    }
+
+    @Test
+    public void givenArgsWithUrlAndGrouped_whenRun_thenNotRunningCrawl() {
+        //GIVEN
+        RunnerArgs args = generateArgs("-u", "http://www.example.com", "-g");
+        Runner runner = new Runner(args, crawlerService, serializerService);
+
+        //WHEN
+        runner.run();
+
+        //THEN
+        verify(crawlerService).crawl(any());
+        verify(serializerService).serializeGrouped(any(), any(), anyList());
     }
 
     private RunnerArgs generateArgs(String... args) {

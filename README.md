@@ -19,25 +19,29 @@ Make sure, that you have installed maven and java, then in project root folder t
 
 To run crawler run crawler.bat (Windows) or crawler.sh (Unix/Linux) with arguments given bellow:
 <pre>
-usage: Windows: crawler -u [-d] | Linux/Unix: ./crawler.sh -u [-d]
+usage: Windows: crawler -u [-d] [-g] | Linux/Unix: ./crawler.sh -u [-d] [-g]
  -u,--url       Initial url from which crawler start. 
                 Url should has "http://" or "https://" prefix.
  -d,--depth     Depth level of the crawler search. 
-                Default value is 100 [optional]
+                Default value is 100. [optional]
  -g,--grouped   Grouping found links by <a href="https://github.com/mzweigert/Crawler/blob/master/src/main/java/com/mzweigert/crawler/model/node/PageLinkType.java">PageLinkType</a>
-                and save them to separate files.
+                and save them to separate files. [optional]
 </pre>
 
 ## Result files
 When crawler finishes work, discovered links are saved as xml files to `%root_project_folder%/output/%given_url_as_param%/`
 
-##Trade off's
+## Trade off's
 * Software uses apache commons [UrlValidator](https://commons.apache.org/proper/commons-validator/apidocs/org/apache/commons/validator/routines/UrlValidator.html), 
  which some correct links recognizes as invalid.
 * Lack of validating files existence for grouping by [PageLinkType](https://github.com/mzweigert/Crawler/blob/master/src/main/java/com/mzweigert/crawler/model/node/PageLinkType.java) links serialization.
   (Crawler does not know what type of links given domain has, so he does not know what name of files should find.)
-
-##Feature extension TODO
+* Crawler can't finds link from dynamic generating components. Maybe this can be feature extension?
+* When link without protocol or domain address has been find, crawler
+  pastes given as param url before it.
+* Performance depends on user internet connection and visited server domain.
+  
+## Feature extension TODO
 * Serialization to other type of files (i.e. Json)
 * Mapping to other structure types (i.e. Map, where key is page, and value is it children)
 * Better handling http and connection exceptions

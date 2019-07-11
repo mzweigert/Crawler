@@ -24,6 +24,18 @@ public class CrawlerServiceImplTest {
     }
 
     @Test
+    public void givenInvalidUrl_whenCrawl_thenReturnEmptyNodes() {
+        //GIVEN
+        String url = "invalid url";
+
+        //WHEN
+        Collection<PageLink> crawl = service.crawl(url);
+
+        //THEN
+        assertThat(crawl).isEmpty();
+    }
+
+    @Test
     public void givenUrl_whenCrawlWithMaxDepth_thenReturnNotEmptyPageNodes() {
         //GIVEN
         String url = "www.wiprodigital.com";
@@ -66,5 +78,17 @@ public class CrawlerServiceImplTest {
         assertThat(first).isNotEmpty();
         assertThat(second).isNotEmpty();
         assertThat(first.size()).isLessThan(second.size());
+    }
+
+    @Test
+    public void givenInvalidUrl_whenCrawlWithDepth_thenReturnEmptyNodes() {
+        //GIVEN
+        String url = "invalid url";
+
+        //WHEN
+        Collection<PageLink> crawl = service.crawl(url);
+
+        //THEN
+        assertThat(crawl).isEmpty();
     }
 }

@@ -13,6 +13,7 @@ import org.jsoup.Jsoup;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.RecursiveTask;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
@@ -78,7 +79,7 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
             }
 
         } else {
-            e.printStackTrace();
+            System.out.println("Exception for url " + url + ": " + e.getClass() + " " + e.getMessage());
         }
     }
 
@@ -93,11 +94,13 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
         if (toVisit == null || toVisit.isEmpty() || depth <= 0) {
             return visitedLinks.nodes();
         }
+      List<PageLink> toVisitFiltered = toVisit.stream()
+                .filter(link -> !visitedLinks.contains(link.getUrl()))
+                .collect(Collectors.toList());
 
-        if (toVisit.size() > THRESHOLD) {
-            List<PageLink> toVisitAsList = new ArrayList<>(toVisit);
-            List<PageLink> firstPart = toVisitAsList.subList(0, toVisitAsList.size() / 2);
-            List<PageLink> secondPart = toVisitAsList.subList(toVisitAsList.size() / 2, toVisitAsList.size());
+        if (toVisitFiltered.size() > THRESHOLD) {
+            List<PageLink> firstPart = toVisitFiltered.subList(0, toVisitFiltered.size() / 2);
+            List<PageLink> secondPart = toVisitFiltered.subList(toVisitFiltered.size() / 2, toVisitFiltered.size());
 
             CrawlerTask left = new CrawlerTask(firstPart, visitedLinks, depth);
             CrawlerTask right = new CrawlerTask(secondPart, visitedLinks, depth);
@@ -106,8 +109,9 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
             left.compute();
             right.join();
 
-        } else {
-            Collection<PageLink> notVisited = extractLinks(toVisit);
+        } else if(!toVisitFiltered.isEmpty()){
+            Collection<PageLink> notVisited = extractLinks(toVisitFiltered);
+
             if (!notVisited.isEmpty()) {
                 CrawlerTask cr = new CrawlerTask(notVisited, visitedLinks, depth - 1);
                 cr.compute();

@@ -1,9 +1,12 @@
 package com.mzweigert.crawler.service.crawler;
 
 import com.mzweigert.crawler.model.node.PageLink;
+import com.mzweigert.crawler.util.UrlUtil;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.concurrent.ForkJoinPool;
 

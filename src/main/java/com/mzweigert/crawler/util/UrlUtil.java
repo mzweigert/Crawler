@@ -76,7 +76,7 @@ public class UrlUtil {
                     .execute()
                     .url();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getClass() + " " + e.getMessage());
         }
         return null;
     }

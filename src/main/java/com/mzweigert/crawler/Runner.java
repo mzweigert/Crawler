@@ -78,6 +78,7 @@ public class Runner {
 
         float sec = (end - start) / 1000F;
         System.out.println("Crawling took " + sec + " seconds");
+        System.out.println("Found " + crawl.size() + " links.");
         return crawl;
     }
 

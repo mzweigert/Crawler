@@ -1,4 +1,4 @@
-package com.mzweigert.crawler.model.node;
+package com.mzweigert.crawler.model.link;
 
 import com.mzweigert.crawler.model.VisitedLinks;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class PageLinkMapperTest {
         toMap.add("invalid link");
 
         //THEN
-        Set<PageLink> result = PageNodeMapper.mapMany(links, toMap);
+        Set<PageLink> result = PageLinkMapper.mapMany(links, toMap);
 
         //THEN
         assertThat(result).isNotEmpty();
@@ -46,7 +46,7 @@ public class PageLinkMapperTest {
     public void givenUrl_whenMap_thenReturnNodeWithInternalRootDomainType() {
         String root = "http://www.example.com";
 
-        PageLink result = PageNodeMapper.map(root, root);
+        PageLink result = PageLinkMapper.map(root, root);
 
         assertThat(result.getType()).isEqualTo(PageLinkType.INTERNAL_ROOT_DOMAIN);
     }
@@ -56,7 +56,7 @@ public class PageLinkMapperTest {
         String root = "http://www.example.com";
         String link = "http://www.example.com/subdomain/";
 
-        PageLink result = PageNodeMapper.map(root, link);
+        PageLink result = PageLinkMapper.map(root, link);
 
         assertThat(result.getType()).isEqualTo(PageLinkType.INTERNAL_SUB_DOMAIN);
     }
@@ -66,7 +66,7 @@ public class PageLinkMapperTest {
         String root = "http://www.example.com";
         String link = "http://www.example.com/subdomainfile.png";
 
-        PageLink result = PageNodeMapper.map(root, link);
+        PageLink result = PageLinkMapper.map(root, link);
 
         assertThat(result.getType()).isEqualTo(PageLinkType.INTERNAL_RESOURCES);
     }
@@ -76,7 +76,7 @@ public class PageLinkMapperTest {
         String root = "http://www.example.com";
         String link = "http://www.external.com/file.png";
 
-        PageLink result = PageNodeMapper.map(root, link);
+        PageLink result = PageLinkMapper.map(root, link);
 
         assertThat(result.getType()).isEqualTo(PageLinkType.EXTERNAL_RESOURCES);
     }
@@ -86,7 +86,7 @@ public class PageLinkMapperTest {
         String root = "http://www.example.com";
         String link = "http://www.external.com";
 
-        PageLink result = PageNodeMapper.map(root, link);
+        PageLink result = PageLinkMapper.map(root, link);
 
         assertThat(result.getType()).isEqualTo(PageLinkType.EXTERNAL_DOMAIN);
     }
@@ -96,7 +96,7 @@ public class PageLinkMapperTest {
         String root = "http://www.example.com";
         String link = "invalid_link";
 
-        PageLink result = PageNodeMapper.map(root, link);
+        PageLink result = PageLinkMapper.map(root, link);
 
         assertThat(result.getType()).isEqualTo(PageLinkType.INVALID_LINK);
     }

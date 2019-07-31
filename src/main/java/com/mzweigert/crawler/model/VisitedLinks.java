@@ -1,6 +1,6 @@
 package com.mzweigert.crawler.model;
 
-import com.mzweigert.crawler.model.node.PageLink;
+import com.mzweigert.crawler.model.link.PageLink;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

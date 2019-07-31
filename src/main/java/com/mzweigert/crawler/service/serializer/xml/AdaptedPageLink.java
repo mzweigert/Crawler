@@ -1,7 +1,7 @@
 package com.mzweigert.crawler.service.serializer.xml;
 
-import com.mzweigert.crawler.model.node.PageLink;
-import com.mzweigert.crawler.model.node.PageLinkType;
+import com.mzweigert.crawler.model.link.PageLink;
+import com.mzweigert.crawler.model.link.PageLinkType;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

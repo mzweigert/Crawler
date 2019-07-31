@@ -1,4 +1,4 @@
-package com.mzweigert.crawler.model.node;
+package com.mzweigert.crawler.model.link;
 
 import jdk.nashorn.internal.ir.annotations.Immutable;
 

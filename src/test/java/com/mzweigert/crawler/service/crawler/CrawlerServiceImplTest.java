@@ -1,6 +1,6 @@
 package com.mzweigert.crawler.service.crawler;
 
-import com.mzweigert.crawler.model.node.PageLink;
+import com.mzweigert.crawler.model.link.PageLink;
 import org.junit.Test;
 
 import java.util.Collection;

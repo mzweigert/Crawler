@@ -1,12 +1,9 @@
 package com.mzweigert.crawler.service.crawler;
 
-import com.mzweigert.crawler.model.node.PageLink;
-import com.mzweigert.crawler.util.UrlUtil;
+import com.mzweigert.crawler.model.link.PageLink;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.concurrent.ForkJoinPool;
 
@@ -14,7 +11,7 @@ public class CrawlerServiceImpl implements CrawlerService {
 
     private Properties properties = new Properties();
     private ForkJoinPool forkJoinPool;
-    private int maxDepth;
+    private int maxDepth, documentsPerWorker;
 
     public CrawlerServiceImpl() {
         try {
@@ -24,6 +21,7 @@ public class CrawlerServiceImpl implements CrawlerService {
             );
             forkJoinPool = initForkJoinPool();
             maxDepth = initMaxDepth();
+            documentsPerWorker = initDocumentsPerWorkers();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,6 +36,15 @@ public class CrawlerServiceImpl implements CrawlerService {
         }
     }
 
+    private int initDocumentsPerWorkers() {
+        Object documentsPerWorker = properties.get("documents_per_worker");
+        if (documentsPerWorker != null) {
+            return Integer.valueOf(documentsPerWorker.toString());
+        } else {
+            return DOCUMENTS_PER_WORKER;
+        }
+    }
+
     private ForkJoinPool initForkJoinPool() {
         Object workers = properties.get("workers");
         if (workers != null) {
@@ -48,11 +55,15 @@ public class CrawlerServiceImpl implements CrawlerService {
     }
 
     public Collection<PageLink> crawl(String startUrl) {
-        return forkJoinPool.invoke(new CrawlerTask(startUrl, maxDepth));
+        return forkJoinPool.invoke(new CrawlerTask(startUrl, maxDepth, documentsPerWorker));
     }
 
     public Collection<PageLink> crawl(String startUrl, int maxDepth) {
-        return forkJoinPool.invoke(new CrawlerTask(startUrl, maxDepth));
+        return forkJoinPool.invoke(new CrawlerTask(startUrl, maxDepth, documentsPerWorker));
+    }
+
+    public Collection<PageLink> crawl(String startUrl, int maxDepth, int documentsPerWorker) {
+        return forkJoinPool.invoke(new CrawlerTask(startUrl, maxDepth, documentsPerWorker));
     }
 
 }

@@ -1,6 +1,6 @@
 package com.mzweigert.crawler.service.serializer;
 
-import com.mzweigert.crawler.model.node.PageLink;
+import com.mzweigert.crawler.model.link.PageLink;
 
 import java.io.File;
 import java.util.Collection;
@@ -13,7 +13,7 @@ public interface FileSerializationService {
     void serialize(File file, Collection<PageLink> links);
 
     /**
-     * Method split given links by {@link com.mzweigert.crawler.model.node.PageLinkType}
+     * Method split given links by {@link com.mzweigert.crawler.model.link.PageLinkType}
      * and save grouped in separate files
      */
     void serializeGrouped(String directoryFile, String prefixFileName, Collection<PageLink> links);

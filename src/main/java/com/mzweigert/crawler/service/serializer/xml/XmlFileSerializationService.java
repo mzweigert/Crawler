@@ -1,6 +1,6 @@
 package com.mzweigert.crawler.service.serializer.xml;
 
-import com.mzweigert.crawler.model.node.PageLink;
+import com.mzweigert.crawler.model.link.PageLink;
 import com.mzweigert.crawler.service.serializer.FileSerializationService;
 
 import javax.xml.bind.JAXBContext;

@@ -1,9 +1,9 @@
 package com.mzweigert.crawler.service.crawler;
 
 import com.mzweigert.crawler.model.VisitedLinks;
-import com.mzweigert.crawler.model.node.PageLink;
-import com.mzweigert.crawler.model.node.PageLinkType;
-import com.mzweigert.crawler.model.node.PageNodeMapper;
+import com.mzweigert.crawler.model.link.PageLink;
+import com.mzweigert.crawler.model.link.PageLinkType;
+import com.mzweigert.crawler.model.link.PageLinkMapper;
 import com.mzweigert.crawler.util.AttributeFinder;
 import com.mzweigert.crawler.util.UrlUtil;
 import org.jsoup.Connection;
@@ -18,13 +18,11 @@ import java.util.stream.IntStream;
 
 public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
 
-    private static final int THRESHOLD = 5;
-
     private Collection<PageLink> toVisit;
     private VisitedLinks visitedLinks;
-    private int depth;
+    private int depth, threshold;
 
-    CrawlerTask(String link, int maxDepth) {
+    CrawlerTask(String link, int maxDepth, int documentsPerWorker) {
         URL url = UrlUtil.asURL(link);
         if (url == null) {
             this.visitedLinks = new VisitedLinks(link);
@@ -34,18 +32,20 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
         String rootUrl = UrlUtil.extractRootUrl(url);
         this.visitedLinks = new VisitedLinks(rootUrl);
         link = UrlUtil.normalizeLink(rootUrl, url.toString());
-        PageLink root = PageNodeMapper.map(rootUrl, link);
-        ArrayList<PageLink> toVisit = new ArrayList<PageLink>(1) {{
+        PageLink root = PageLinkMapper.map(rootUrl, link);
+        this.toVisit = new ArrayList<PageLink>(1) {{
             add(root);
         }};
-        this.toVisit = extractLinks(toVisit);
         this.depth = maxDepth;
+        this.threshold = documentsPerWorker;
     }
 
-    private CrawlerTask(Collection<PageLink> toVisit, VisitedLinks visitedLinks, int depth) {
+    private CrawlerTask(Collection<PageLink> toVisit, VisitedLinks visitedLinks,
+                        int depth, int documentsPerWorker) {
         this.toVisit = toVisit;
         this.visitedLinks = visitedLinks;
         this.depth = depth;
+        this.threshold = documentsPerWorker;
     }
 
     private Set<PageLink> extractLinks(Collection<PageLink> toVisit) {
@@ -67,7 +67,7 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
                 onException(node.getUrl(), e);
             }
         }
-        return PageNodeMapper.mapMany(visitedLinks, notVisited);
+        return PageLinkMapper.mapMany(visitedLinks, notVisited);
     }
 
     private void onException(String url, Exception e) {
@@ -99,12 +99,12 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
                 .filter(link -> !visitedLinks.contains(link.getUrl()))
                 .collect(Collectors.toList());
 
-        if (toVisitFiltered.size() > THRESHOLD) {
+        if (toVisitFiltered.size() > threshold) {
             List<PageLink> firstPart = toVisitFiltered.subList(0, toVisitFiltered.size() / 2);
             List<PageLink> secondPart = toVisitFiltered.subList(toVisitFiltered.size() / 2, toVisitFiltered.size());
 
-            CrawlerTask left = new CrawlerTask(firstPart, visitedLinks, depth);
-            CrawlerTask right = new CrawlerTask(secondPart, visitedLinks, depth);
+            CrawlerTask left = new CrawlerTask(firstPart, visitedLinks, depth, threshold);
+            CrawlerTask right = new CrawlerTask(secondPart, visitedLinks, depth, threshold);
 
             right.fork();
             left.compute();
@@ -113,8 +113,8 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
         } else if(!toVisitFiltered.isEmpty()){
             Collection<PageLink> notVisited = extractLinks(toVisitFiltered);
             if (!notVisited.isEmpty()) {
-                CrawlerTask cr = new CrawlerTask(notVisited, visitedLinks, depth - 1);
-                cr.compute();
+                CrawlerTask task = new CrawlerTask(notVisited, visitedLinks, depth - 1, threshold);
+                task.compute();
             }
         }
 

@@ -1,6 +1,6 @@
 package com.mzweigert.crawler;
 
-import com.mzweigert.crawler.model.node.PageLink;
+import com.mzweigert.crawler.model.link.PageLink;
 import com.mzweigert.crawler.service.crawler.CrawlerService;
 import com.mzweigert.crawler.service.crawler.CrawlerServiceImpl;
 import com.mzweigert.crawler.service.serializer.FileSerializationService;

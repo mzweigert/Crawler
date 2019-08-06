@@ -1,6 +1,10 @@
 package com.mzweigert.crawler.service.crawler;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.mzweigert.crawler.FakeServerCreator;
 import com.mzweigert.crawler.model.link.PageLink;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -9,86 +13,93 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class CrawlerServiceImplTest {
 
-    private CrawlerServiceImpl service = new CrawlerServiceImpl();
+	private static WireMockServer server;
+	private CrawlerServiceImpl service = new CrawlerServiceImpl();
+	private static final String url = "http://localhost:8080";
+	private static final int websiteStructureDepth = 3;
 
-    @Test
-    public void givenUrl_whenCrawl_thenReturnNotEmptyPageNodes() {
-        //GIVEN
-        String url = "www.mateuszzweigert.pl";
+	@BeforeClass
+	public static void setUpClass() {
+		server = new FakeServerCreator(8080).createBinaryTreeStructureWebsite(websiteStructureDepth);
+	}
 
-        //WHEN
-        Collection<PageLink> crawl = service.crawl(url);
+	@AfterClass
+	public static void clean() {
+		server.stop();
+	}
 
-        //THEN
-        assertThat(crawl).isNotEmpty();
-    }
+	@Test
+	public void givenUrl_whenCrawl_thenReturnNotEmptyPageNodes() {
+		//WHEN
+		Collection<PageLink> result = service.crawl(url);
 
-    @Test
-    public void givenInvalidUrl_whenCrawl_thenReturnEmptyNodes() {
-        //GIVEN
-        String url = "invalid url";
+		//THEN
+		assertThat(result).isNotEmpty();
+		assertThat(result).size().isGreaterThan(1);
+		assertThat(result).size().isEqualTo((int) Math.pow(2, websiteStructureDepth) - 1);
+	}
 
-        //WHEN
-        Collection<PageLink> crawl = service.crawl(url);
+	@Test
+	public void givenInvalidUrl_whenCrawl_thenReturnEmptyNodes() {
+		//GIVEN
+		String url = "invalid url";
 
-        //THEN
-        assertThat(crawl).isEmpty();
-    }
+		//WHEN
+		Collection<PageLink> result = service.crawl(url);
 
-    @Test
-    public void givenUrl_whenCrawlWithMaxDepth_thenReturnNotEmptyPageNodes() {
-        //GIVEN
-        String url = "www.wiprodigital.com";
+		//THEN
+		assertThat(result).isEmpty();
+	}
 
-        //WHEN
-        Collection<PageLink> result = service.crawl(url, 2);
+	@Test
+	public void givenUrlWithMaxDepth_whenCrawl_thenReturnNotEmptyPageNodes() {
+		//GIVEN
+		int maxDepth = 2;
 
-        //THEN
-        assertThat(result).isNotEmpty();
-    }
+		//WHEN
+		Collection<PageLink> result = service.crawl(url, maxDepth);
 
-    @Test
-    public void givenUrl_whenTwiceInvokeCrawlWithMaxDepthEqualToOne_thenReturnSameResults() {
-        //GIVEN
-        String url = "www.wiprodigital.com";
+		//THEN
+		assertThat(result).isNotEmpty();
+		assertThat(result).size().isGreaterThan(1);
+		assertThat(result).size().isEqualTo((int) Math.pow(2, maxDepth) - 1);
+	}
 
-        //WHEN
-        Collection<PageLink> first = service.crawl(url, 1);
-        Collection<PageLink> second = service.crawl(url, 1);
+	@Test
+	public void givenUrl_whenTwiceInvokeCrawlWithMaxDepthEqualToOne_thenReturnSameResults() {
+		//WHEN
+		Collection<PageLink> first = service.crawl(url, websiteStructureDepth);
+		Collection<PageLink> second = service.crawl(url, websiteStructureDepth);
 
+		//THEN
+		assertThat(first).isNotEmpty();
+		assertThat(second).isNotEmpty();
+		assertThat(first).containsAll(second);
+		assertThat(second).containsAll(first);
+	}
 
-        //THEN
-        assertThat(first).isNotEmpty();
-        assertThat(second).isNotEmpty();
-        assertThat(first).containsAll(second);
-        assertThat(second).containsAll(first);
-    }
-
-    @Test
-    public void givenUrl_whenTwiceInvokeCrawlWithDifferentMaxDepth_thenReturnDifferentResults() {
-        //GIVEN
-        String url = "www.wiprodigital.com";
-
-        //WHEN
-        Collection<PageLink> first = service.crawl(url, 2);
-        Collection<PageLink> second = service.crawl(url, 3);
+	@Test
+	public void givenUrl_whenTwiceInvokeCrawlWithDifferentMaxDepth_thenReturnDifferentResults() {
+		//WHEN
+		Collection<PageLink> first = service.crawl(url, websiteStructureDepth - 1);
+		Collection<PageLink> second = service.crawl(url, websiteStructureDepth);
 
 
-        //THEN
-        assertThat(first).isNotEmpty();
-        assertThat(second).isNotEmpty();
-        assertThat(first.size()).isLessThan(second.size());
-    }
+		//THEN
+		assertThat(first).isNotEmpty();
+		assertThat(second).isNotEmpty();
+		assertThat(first.size()).isLessThan(second.size());
+	}
 
-    @Test
-    public void givenInvalidUrl_whenCrawlWithDepth_thenReturnEmptyNodes() {
-        //GIVEN
-        String url = "invalid url";
+	@Test
+	public void givenInvalidUrl_whenCrawlWithDepth_thenReturnEmptyNodes() {
+		//GIVEN
+		String url = "invalid url";
 
-        //WHEN
-        Collection<PageLink> crawl = service.crawl(url);
+		//WHEN
+		Collection<PageLink> result = service.crawl(url);
 
-        //THEN
-        assertThat(crawl).isEmpty();
-    }
+		//THEN
+		assertThat(result).isEmpty();
+	}
 }

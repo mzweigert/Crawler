@@ -16,9 +16,9 @@ public class UrlUtil {
             return "";
         }
         return url.getProtocol() +
-                (url.getPort() > 0 ? ":" + url.getPort() : "") +
                 "://" +
-                url.getHost();
+                url.getHost() +
+                (url.getPort() > 0 ? ":" + url.getPort() : "");
     }
 
     public static String normalizeLink(String rootUrl, String link) {

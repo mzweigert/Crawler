@@ -60,14 +60,14 @@ public class RunnerTest {
         runner.run();
 
         //THEN
-        verify(crawlerService).crawl(any(), eq(15));
+        verify(crawlerService).crawl(any());
         verify(serializerService).serialize(any(), anyList());
     }
 
     @Test
     public void givenArgsWithUrlAndGrouped_whenRun_thenNotRunningCrawl() {
         //GIVEN
-        RunnerArgs args = generateArgs("-u", "http://www.example.com", "-g");
+		RunnerArgs args = generateArgs("-u", "http://www.example.com", "-g");
         Runner runner = new Runner(args, crawlerService, serializerService);
 
         //WHEN

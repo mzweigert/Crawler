@@ -1,6 +1,7 @@
 package com.mzweigert.crawler;
 
 import com.mzweigert.crawler.model.link.PageLink;
+import com.mzweigert.crawler.service.crawler.CrawlerArgs;
 import com.mzweigert.crawler.service.crawler.CrawlerService;
 import com.mzweigert.crawler.service.crawler.CrawlerServiceImpl;
 import com.mzweigert.crawler.service.serializer.FileSerializationService;
@@ -64,17 +65,11 @@ public class Runner {
     private Collection<PageLink> findPageLinks() {
         long start, end;
         Collection<PageLink> crawl;
-        if (args.getMaxDepth() > 0) {
-            System.out.println("Start crawling url: " + args.getUrl() + " with depth = " + args.getMaxDepth());
-            start = System.currentTimeMillis();
-            crawl = crawlerService.crawl(args.getUrl(), args.getMaxDepth());
-            end = System.currentTimeMillis();
-        } else {
-            System.out.println("Start crawling url: " + args.getUrl());
-            start = System.currentTimeMillis();
-            crawl = crawlerService.crawl(args.getUrl());
-            end = System.currentTimeMillis();
-        }
+        start = System.currentTimeMillis();
+		CrawlerArgs crawlerArgs = args.mapToCrawlerArgs();
+		System.out.println("Start crawling url: " + crawlerArgs.getStartUrl() + " with depth = " + crawlerArgs.getMaxDepth());
+		crawl = crawlerService.crawl(crawlerArgs);
+        end = System.currentTimeMillis();
 
         float sec = (end - start) / 1000F;
         System.out.println("Crawling took " + sec + " seconds");

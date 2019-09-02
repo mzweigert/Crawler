@@ -30,8 +30,12 @@ public class CrawlerServiceImplTest {
 
 	@Test
 	public void givenUrl_whenCrawl_thenReturnNotEmptyPageNodes() {
+		//GIVEN
+		CrawlerArgs args = CrawlerArgs.initBuilder()
+				.withStartUrl(url)
+				.build();
 		//WHEN
-		Collection<PageLink> result = service.crawl(url);
+		Collection<PageLink> result = service.crawl(args);
 
 		//THEN
 		assertThat(result).isNotEmpty();
@@ -42,10 +46,13 @@ public class CrawlerServiceImplTest {
 	@Test
 	public void givenInvalidUrl_whenCrawl_thenReturnEmptyNodes() {
 		//GIVEN
-		String url = "invalid url";
+		//GIVEN
+		CrawlerArgs args = CrawlerArgs.initBuilder()
+				.withStartUrl("invalid url")
+				.build();
 
 		//WHEN
-		Collection<PageLink> result = service.crawl(url);
+		Collection<PageLink> result = service.crawl(args);
 
 		//THEN
 		assertThat(result).isEmpty();
@@ -55,9 +62,13 @@ public class CrawlerServiceImplTest {
 	public void givenUrlWithMaxDepth_whenCrawl_thenReturnNotEmptyPageNodes() {
 		//GIVEN
 		int maxDepth = 2;
+		CrawlerArgs args = CrawlerArgs.initBuilder()
+				.withStartUrl(url)
+				.withMaxDepth(maxDepth)
+				.build();
 
 		//WHEN
-		Collection<PageLink> result = service.crawl(url, maxDepth);
+		Collection<PageLink> result = service.crawl(args);
 
 		//THEN
 		assertThat(result).isNotEmpty();
@@ -68,8 +79,12 @@ public class CrawlerServiceImplTest {
 	@Test
 	public void givenUrl_whenTwiceInvokeCrawlWithMaxDepthEqualToOne_thenReturnSameResults() {
 		//WHEN
-		Collection<PageLink> first = service.crawl(url, websiteStructureDepth);
-		Collection<PageLink> second = service.crawl(url, websiteStructureDepth);
+		CrawlerArgs args = CrawlerArgs.initBuilder()
+				.withStartUrl(url)
+				.withMaxDepth(websiteStructureDepth)
+				.build();
+		Collection<PageLink> first = service.crawl(args);
+		Collection<PageLink> second = service.crawl(args);
 
 		//THEN
 		assertThat(first).isNotEmpty();
@@ -81,8 +96,18 @@ public class CrawlerServiceImplTest {
 	@Test
 	public void givenUrl_whenTwiceInvokeCrawlWithDifferentMaxDepth_thenReturnDifferentResults() {
 		//WHEN
-		Collection<PageLink> first = service.crawl(url, websiteStructureDepth - 1);
-		Collection<PageLink> second = service.crawl(url, websiteStructureDepth);
+		CrawlerArgs args = CrawlerArgs.initBuilder()
+				.withStartUrl(url)
+				.withMaxDepth(websiteStructureDepth - 1)
+				.build();
+
+		Collection<PageLink> first = service.crawl(args);
+
+		args = CrawlerArgs.initBuilder()
+				.withStartUrl(url)
+				.withMaxDepth(websiteStructureDepth)
+				.build();
+		Collection<PageLink> second = service.crawl(args);
 
 
 		//THEN
@@ -91,15 +116,4 @@ public class CrawlerServiceImplTest {
 		assertThat(first.size()).isLessThan(second.size());
 	}
 
-	@Test
-	public void givenInvalidUrl_whenCrawlWithDepth_thenReturnEmptyNodes() {
-		//GIVEN
-		String url = "invalid url";
-
-		//WHEN
-		Collection<PageLink> result = service.crawl(url);
-
-		//THEN
-		assertThat(result).isEmpty();
-	}
 }

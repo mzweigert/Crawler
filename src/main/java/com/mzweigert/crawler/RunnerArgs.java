@@ -1,5 +1,6 @@
 package com.mzweigert.crawler;
 
+import com.mzweigert.crawler.service.crawler.CrawlerArgs;
 import com.mzweigert.crawler.service.serializer.SerializationType;
 import org.apache.commons.validator.routines.UrlValidator;
 
@@ -132,4 +133,10 @@ public class RunnerArgs {
         return parsedStatus;
     }
 
+    public CrawlerArgs mapToCrawlerArgs() {
+        return CrawlerArgs.initBuilder()
+                .withStartUrl(url)
+                .withMaxDepth(maxDepth)
+                .build();
+    }
 }

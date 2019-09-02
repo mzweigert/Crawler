@@ -22,22 +22,22 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
     private VisitedLinks visitedLinks;
     private int depth, threshold;
 
-    CrawlerTask(String link, int maxDepth, int documentsPerWorker) {
-        URL url = UrlUtil.asURL(link);
+    CrawlerTask(CrawlerArgs args) {
+        URL url = UrlUtil.asURL(args.getStartUrl());
         if (url == null) {
-            this.visitedLinks = new VisitedLinks(link);
+            this.visitedLinks = new VisitedLinks(args.getStartUrl());
             return;
         }
 
         String rootUrl = UrlUtil.extractRootUrl(url);
         this.visitedLinks = new VisitedLinks(rootUrl);
-        link = UrlUtil.normalizeLink(rootUrl, url.toString());
+        String link = UrlUtil.normalizeLink(rootUrl, url.toString());
         PageLink root = PageLinkMapper.map(rootUrl, link);
         this.toVisit = new ArrayList<PageLink>(1) {{
             add(root);
         }};
-        this.depth = maxDepth;
-        this.threshold = documentsPerWorker;
+        this.depth = args.getMaxDepth();
+        this.threshold = args.getDocumentsPerThread();
     }
 
     private CrawlerTask(Collection<PageLink> toVisit, VisitedLinks visitedLinks,

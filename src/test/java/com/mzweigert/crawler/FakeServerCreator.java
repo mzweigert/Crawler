@@ -39,7 +39,7 @@ public class FakeServerCreator {
 		StringBuilder body = new StringBuilder("<!DOCTYPE html><html><body>\n");
 		for (int i = 1; i <= size && depth - 1 > 0; i++) {
 			String pagePath = String.format(parentPath + "/page_%s", i);
-			String link = String.format("<a href=\"" + pagePath + "\" >link_%s</a>\n", i);
+			String link = String.format("<div><a href=\"" + pagePath + "\" >link_%s</a></div>\n", i);
 			String pages = createPages(size, depth - 1, pagePath);
 			stubFor(get(urlEqualTo(pagePath))
 					.willReturn(aResponse()

@@ -43,4 +43,30 @@ public class AttributeFinderTest {
         //THEN
         assertThat(result).isNotEmpty();
     }
+
+	@Test
+	public void givenDOMDocument_whenFindWithAdditionalSelectors_thenSuccessFindLinks() throws IOException {
+		//GIVEN
+		Document document = Jsoup.connect(url).get();
+		HashSet<String> visitedBefore = new HashSet<>();
+
+		//WHEN
+		Set<String> result = AttributeFinder.getInstance(document).find(visitedBefore, "div");
+
+		//THEN
+		assertThat(result).isNotEmpty();
+	}
+
+	@Test
+	public void givenDOMDocument_whenFindWithAdditionalSelectors_thenFailFindLinks() throws IOException {
+		//GIVEN
+		Document document = Jsoup.connect(url).get();
+		HashSet<String> visitedBefore = new HashSet<>();
+
+		//WHEN
+		Set<String> result = AttributeFinder.getInstance(document).find(visitedBefore, "p");
+
+		//THEN
+		assertThat(result).isEmpty();
+	}
 }

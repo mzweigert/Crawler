@@ -2,15 +2,18 @@ package com.mzweigert.crawler.service.crawler;
 
 import com.mzweigert.crawler.configuration.Configuration;
 
+import java.util.List;
+import java.util.Objects;
+
 public class CrawlerArgs {
 
-	private CrawlerArgs() {}
-
 	private String startUrl;
+	private Integer maxDepth;
+	private Integer documentsPerThread;
+	private List<String> additionSelectors;
 
-	private int maxDepth;
-
-	private int documentsPerThread;
+	private CrawlerArgs() {
+	}
 
 	public static Start initBuilder() {
 		return new Builder();
@@ -26,6 +29,30 @@ public class CrawlerArgs {
 
 	public int getDocumentsPerThread() {
 		return documentsPerThread;
+	}
+
+	public List<String> getAdditionSelectors() {
+		return additionSelectors;
+	}
+
+	public String[] getAdditionSelectorsAsArray() {
+		return additionSelectors == null ? new String[0] : additionSelectors.toArray(new String[0]);
+	}
+
+	public interface Start {
+		Build withStartUrl(String url);
+
+		CrawlerArgs withAll(String url, int maxDepth, int documentsPerThread);
+	}
+
+	public interface Build {
+		Build withMaxDepth(int maxDepth);
+
+		Build withDocumentsPerThread(int documentsPerThread);
+
+		Build withSelectors(List<String> selectors);
+
+		CrawlerArgs build();
 	}
 
 	private static class Builder implements Start, Build {
@@ -59,25 +86,20 @@ public class CrawlerArgs {
 		}
 
 		@Override
+		public Build withSelectors(List<String> selectors) {
+			this.instance.additionSelectors = selectors;
+			return this;
+		}
+
+		@Override
 		public CrawlerArgs build() {
-			if (this.instance.maxDepth <= 0) {
+			if (this.instance.maxDepth == null) {
 				this.instance.maxDepth = Integer.valueOf(Configuration.getProperty("max_depth"));
 			}
-			if (this.instance.documentsPerThread <= 0) {
+			if (Objects.isNull(this.instance.documentsPerThread) || this.instance.documentsPerThread <= 0) {
 				this.instance.documentsPerThread = Integer.valueOf(Configuration.getProperty("documents_per_thread"));
 			}
 			return instance;
 		}
-	}
-
-	public interface Start {
-		Build withStartUrl(String url);
-		CrawlerArgs withAll(String url, int maxDepth, int documentsPerThread);
-	}
-
-	public interface Build {
-		Build withMaxDepth(int maxDepth);
-		Build withDocumentsPerThread(int documentsPerThread);
-		CrawlerArgs build();
 	}
 }

@@ -8,6 +8,8 @@ import com.mzweigert.crawler.service.serializer.FileSerializationService;
 import com.mzweigert.crawler.service.serializer.FileSerializationServiceFactory;
 import com.mzweigert.crawler.service.serializer.SerializationType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
@@ -19,6 +21,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Runner {
+
+    private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     private final RunnerArgs args;
     private final CrawlerService crawlerService;
@@ -32,7 +36,7 @@ public class Runner {
 
     void run() {
         if (!args.isSuccess()) {
-            System.out.println("Url argument not found. Try run with [-u http://example_domain.com!]");
+            logger.error("Url argument not found. Try run with [-u http://example_domain.com!]");
             return;
         }
         serialize();
@@ -44,7 +48,7 @@ public class Runner {
             fileName = new URL(args.getUrl()).getHost();
             Optional<String> directory = createOrFindDirectory(fileName);
             if (!directory.isPresent()) {
-                System.out.println("Cannot find directory: " + fileName);
+                logger.error("Cannot find directory: " + fileName);
                 return;
             }
             if (args.isGrouped()) {
@@ -52,7 +56,7 @@ public class Runner {
             } else {
                 File file = new File(directory.get() + fileName + ".xml");
                 if (file.exists()) {
-                    System.out.println("File : " + file.getName() + " exists in directory: " + directory.get());
+                    logger.warn("File : " + file.getName() + " exists in directory: " + directory.get());
                 } else {
                     serializerService.serialize(file, findPageLinks());
                 }
@@ -67,13 +71,13 @@ public class Runner {
         Collection<PageLink> crawl;
         start = System.currentTimeMillis();
 		CrawlerArgs crawlerArgs = args.mapToCrawlerArgs();
-		System.out.println("Start crawling url: " + crawlerArgs.getStartUrl() + " with depth = " + crawlerArgs.getMaxDepth());
+        logger.debug("Start crawling url: " + crawlerArgs.getStartUrl() + " with depth = " + crawlerArgs.getMaxDepth());
 		crawl = crawlerService.crawl(crawlerArgs);
         end = System.currentTimeMillis();
 
         float sec = (end - start) / 1000F;
-        System.out.println("Crawling took " + sec + " seconds");
-        System.out.println("Found " + crawl.size() + " links.");
+        logger.debug("Crawling took " + sec + " seconds");
+        logger.debug("Found " + crawl.size() + " links.");
         return crawl;
     }
 

@@ -13,7 +13,7 @@ public class CrawlerServiceImpl implements CrawlerService {
     private ForkJoinPool forkJoinPool;
 
     public CrawlerServiceImpl() {
-        Integer workers = Integer.valueOf(Configuration.getProperty("workers"));
+        int workers = Integer.parseInt(Configuration.getProperty("workers"));
         forkJoinPool = new ForkJoinPool(workers);
     }
 

@@ -1,5 +1,7 @@
 package com.mzweigert.crawler.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
@@ -7,6 +9,8 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 public class UrlUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(UrlUtil.class);
 
     private UrlUtil() {
     }
@@ -76,7 +80,7 @@ public class UrlUtil {
                     .execute()
                     .url();
         } catch (IOException e) {
-            System.out.println(e.getClass() + " " + e.getMessage());
+            logger.warn(e.getClass() + " " + e.getMessage());
         }
         return null;
     }

@@ -5,18 +5,23 @@ import com.mzweigert.crawler.service.serializer.SerializationType;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RunnerArgs {
 
-    RunnerArgs(List<String> argList) {
-        this.parseArgs(argList);
-    }
+    private static final Logger logger = LoggerFactory.getLogger(RunnerArgs.class);
 
     private int maxDepth;
     private String url;
     private SerializationType serializationType = SerializationType.XML;
     private boolean grouped;
     private boolean parsedStatus;
+
+    public RunnerArgs(){}
+    public RunnerArgs(List<String> argList) {
+        this.parseArgs(argList);
+    }
 
     int getMaxDepth() {
         return maxDepth;
@@ -69,7 +74,7 @@ public class RunnerArgs {
                     grouped = true;
                     break;
                 default:
-                    System.out.println(arg + " argument not recognized!");
+                    logger.warn(arg + " argument not recognized!");
                     break;
             }
             i++;
@@ -83,13 +88,13 @@ public class RunnerArgs {
             type = argList.get(i + 1);
         }
         if (type == null) {
-            System.out.println("No serialization type found! Default serialization: xml");
+            logger.warn("No serialization type found! Default serialization: xml");
         } else {
             try {
                 serializationType = SerializationType.valueOf(type);
                 initialized = true;
             } catch (IllegalArgumentException e) {
-                System.out.println("Cannot found " + type + " serialization. Default serialization xml");
+                logger.error("Cannot found " + type + " serialization. Default serialization xml");
             }
         }
         return initialized;
@@ -102,18 +107,18 @@ public class RunnerArgs {
             depth = argList.get(i + 1);
         }
         if (depth == null) {
-            System.out.println("No depth value found!");
+            logger.warn("No depth value found!");
         } else {
             try {
                 maxDepth = Integer.parseInt(depth);
                 maxDepthInitialized = true;
             } catch (NumberFormatException e) {
-                System.out.println(depth + " must be a number between 0 and 100!");
+                logger.warn(depth + " must be a number between 0 and 100!");
             }
             if (maxDepth < 0 || maxDepth > 100) {
                 maxDepth = 0;
                 maxDepthInitialized = true;
-                System.out.println(depth + " must be a number between 0 and 100!");
+                logger.warn(depth + " must be a number between 0 and 100!");
             }
         }
         return maxDepthInitialized;
@@ -124,11 +129,11 @@ public class RunnerArgs {
             url = argList.get(i + 1);
             parsedStatus = true;
         } else {
-            System.out.println("No url value found!");
+            logger.error("No url value found!");
         }
         if (!UrlValidator.getInstance().isValid(url)) {
             parsedStatus = false;
-            System.out.println("Url is invalid!");
+            logger.error("Url is invalid!");
         }
         return parsedStatus;
     }

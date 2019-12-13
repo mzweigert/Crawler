@@ -2,25 +2,29 @@ package com.mzweigert.crawler.service.serializer.xml;
 
 import com.mzweigert.crawler.model.link.PageLink;
 import com.mzweigert.crawler.service.serializer.FileSerializationService;
-
+import java.io.File;
+import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
-import java.io.File;
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XmlFileSerializationService implements FileSerializationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     @Override
     public void serialize(File file, Collection<PageLink> links) {
-        if(links.isEmpty()){
-            System.out.println("Found collections links is empty.");
-        }else if (file.exists()) {
-            System.out.println("File : " + file.getName() + " exists in directory: " + file.getPath());
+        if (links.isEmpty()) {
+            logger.warn("Found collections links is empty.");
+        } else if (file.exists()) {
+            logger.warn("File : " + file.getName() + " exists in directory: " + file.getPath());
         } else {
             Set<AdaptedPageLink> mapped = links.stream()
                     .map(AdaptedPageLink::new)
@@ -31,8 +35,8 @@ public class XmlFileSerializationService implements FileSerializationService {
 
     @Override
     public void serializeGrouped(String directoryFile, String prefixFileName, Collection<PageLink> links) {
-        if(links.isEmpty()){
-            System.out.println("Found collections links is empty.");
+        if (links.isEmpty()) {
+            logger.warn("Found collections links is empty.");
             return;
         }
         links.parallelStream()
@@ -58,7 +62,7 @@ public class XmlFileSerializationService implements FileSerializationService {
 
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             jaxbMarshaller.marshal(wrapper, file);
-            System.out.println("File : " + file.getName() + " created in directory: " + file.getPath());
+            logger.warn("File : " + file.getName() + " created in directory: " + file.getPath());
 
         } catch (JAXBException e) {
             e.printStackTrace();

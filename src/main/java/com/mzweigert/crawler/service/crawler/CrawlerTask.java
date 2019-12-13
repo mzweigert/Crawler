@@ -6,9 +6,6 @@ import com.mzweigert.crawler.model.link.PageLinkMapper;
 import com.mzweigert.crawler.model.link.PageLinkType;
 import com.mzweigert.crawler.util.AttributeFinder;
 import com.mzweigert.crawler.util.UrlUtil;
-import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,14 +17,22 @@ import java.util.Set;
 import java.util.concurrent.RecursiveTask;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
+
+	private static final Logger logger = LoggerFactory.getLogger(CrawlerTask.class);
 
 	private Collection<PageLink> toVisit;
 	private VisitedLinks visitedLinks;
 	private CrawlerArgs args;
 
 	CrawlerTask(CrawlerArgs args) {
+
 		URL url = UrlUtil.asURL(args.getStartUrl());
 		if (url == null) {
 			this.visitedLinks = new VisitedLinks(args.getStartUrl());
@@ -48,25 +53,6 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
 		this.toVisit = toVisit;
 		this.visitedLinks = visitedLinks;
 		this.args = args;
-	}
-
-	private void onException(String url, Exception e) {
-		if (cannotOpenPage(e)) {
-			PageLink node = new PageLink(url, PageLinkType.INVALID_LINK);
-			if (visitedLinks.notContains(url)) {
-				visitedLinks.add(node);
-				System.out.println("Cannot fetch url: " + node.getUrl());
-			}
-
-		} else {
-			System.out.println("Exception for url " + url + ": " + e.getClass() + " " + e.getMessage());
-		}
-	}
-
-	private boolean cannotOpenPage(Exception e) {
-		if (!(e instanceof HttpStatusException)) return false;
-		int statusCode = ((HttpStatusException) e).getStatusCode();
-		return IntStream.of(404, 403).anyMatch(code -> statusCode == code);
 	}
 
 	@Override
@@ -132,6 +118,25 @@ public class CrawlerTask extends RecursiveTask<Collection<PageLink>> {
 			}
 		}
 		return PageLinkMapper.mapMany(visitedLinks, notVisited);
+	}
+
+	private void onException(String url, Exception e) {
+		if (cannotOpenPage(e)) {
+			PageLink node = new PageLink(url, PageLinkType.INVALID_LINK);
+			if (visitedLinks.notContains(url)) {
+				visitedLinks.add(node);
+				logger.warn("Cannot fetch url: " + node.getUrl());
+			}
+
+		} else {
+			logger.warn("Exception for url " + url + ": " + e.getClass() + " " + e.getMessage());
+		}
+	}
+
+	private boolean cannotOpenPage(Exception e) {
+		if (!(e instanceof HttpStatusException)) return false;
+		int statusCode = ((HttpStatusException) e).getStatusCode();
+		return IntStream.of(404, 403).anyMatch(code -> statusCode == code);
 	}
 
 }

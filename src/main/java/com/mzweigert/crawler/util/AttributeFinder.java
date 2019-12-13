@@ -37,9 +37,7 @@ public class AttributeFinder {
 	private Elements getElements(String... selectors) {
 		Elements elements;
 		if (selectors.length > 0) {
-			String selector = Arrays.stream(selectors)
-					.collect(Collectors.joining(", "))
-					.trim();
+			String selector = String.join(", ", selectors).trim();
 			elements = document.select(selector);
 		} else {
 			elements = document.getAllElements();

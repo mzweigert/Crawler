@@ -1,4 +1,4 @@
-package com.mzweigert.crawler.service.serializer.xml;
+package com.mzweigert.crawler.service.serializer;
 
 import com.mzweigert.crawler.model.link.PageLink;
 import com.mzweigert.crawler.model.link.PageLinkType;

@@ -13,6 +13,8 @@
         <jsoup.version>1.12.1</jsoup.version>
         <commons-validator.version>1.6</commons-validator.version>
         <jaxb.version>2.2.11</jaxb.version>
+        <jackson.databind.version>2.10.1</jackson.databind.version>
+        <sl4j.version>1.7.29</sl4j.version>
         <mockito.version>1.10.19</mockito.version>
         <junit.version>4.12</junit.version>
         <assertj.version>3.8.0</assertj.version>
@@ -39,6 +41,12 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>${jaxb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
